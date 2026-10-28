@@ -8,6 +8,9 @@
 #if defined(MXLGW_HAVE_MTL)
 #include "mtl/mtl_backend.hpp"
 #endif
+#if defined(MXLGW_HAVE_RIVERMAX)
+#include "rivermax/rivermax_backend.hpp"
+#endif
 
 namespace mxlgw::media
 {
@@ -25,6 +28,16 @@ namespace mxlgw::media
         if (config.nic.backend == config::Backend::Mock)
         {
             return createMockBackend(config);
+        }
+        if (config.nic.backend == config::Backend::Rivermax)
+        {
+#if defined(MXLGW_HAVE_RIVERMAX)
+                return createRivermaxBackend(config);
+#else
+                throw std::runtime_error(
+                        "nic.backend = rivermax needs Rivermax support, "
+                        "but this build has no Rivermax support");
+#endif
         }
 #if defined(MXLGW_HAVE_MTL)
         return createMtlBackend(config);

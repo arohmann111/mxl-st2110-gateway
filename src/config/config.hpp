@@ -26,6 +26,7 @@ namespace mxlgw::config
         Dpdk,
         Kernel,
         Mock,
+        Rivermax
     };
     enum class PtpMode
     {

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "node": {
+    "id": null,
+    "label": "mxl-st2110-gateway",
+    "description": "ST 2110 <-> MXL gateway",
+    "http_port": 8080,
+    "resume_connections": true,
+    "log_level": "info"
+  },
+  "nic": {
+    "backend": "rivermax",
+    "port_pairs": [
+      {
+        "name": "media",
+        "primary": {
+          "name": "rmx0",
+          "ifname": "YOUR_MELLANOX_INTERFACE",
+          "ip": "YOUR_INTERFACE_IP",
+          "netmask": "255.255.255.0"
+        }
+      }
+    ]
+  },
+  "ptp": {
+    "mode": "external"
+  },
+  "mxl": {
+    "scan_path": "/Volumes/mxl",
+    "domains": []
+  },
+  "groups": []
+}

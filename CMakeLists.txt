@@ -26,6 +26,7 @@ option(MXLGW_COVERAGE "Instrument for coverage (gcov)" OFF)
 option(MXLGW_USE_PREBUILT_WEBUI "Embed an existing web/dist/index.html instead of running npm" OFF)
 set(MXLGW_WITH_MXL "AUTO" CACHE STRING "Build the MXL bridge (ON/OFF/AUTO)")
 set(MXLGW_WITH_MTL "AUTO" CACHE STRING "Build the MTL backend (ON/OFF/AUTO)")
+set(MXLGW_WITH_RIVERMAX "AUTO" CACHE STRING "Build the Rivermax backend (ON/OFF/AUTO)")
 set(MXLGW_WITH_NMOS "AUTO" CACHE STRING "Build the nmos-cpp node and HTTP server (ON/OFF/AUTO)")
 set(MXLGW_VERSION "" CACHE STRING "Version string (default: git describe, else 0.0.0-dev+<sha>)")
 
@@ -159,6 +160,24 @@ if(MXLGW_HAVE_MTL)
 endif()
 
 # ------------------------------------------------------------------
+# Rivermax backend 
+# ------------------------------------------------------------------
+if(MXLGW_HAVE_RIVERMAX)
+    add_library(mxlgw-rivermax STATIC
+        src/rivermax/rivermax_backend.cpp
+        src/rivermax/rivermax_video.cpp
+        src/rivermax/rivermax_audio.cpp
+        src/rivermax/rivermax_anc.cpp
+    )
+    target_link_libraries(mxlgw-rivermax PUBLIC
+        mxlgw-core
+        Rivermax::Rivermax
+    )
+    target_compile_options(mxlgw-rivermax PRIVATE ${MXLGW_WARNINGS})
+    target_compile_definitions(mxlgw-rivermax PUBLIC MXLGW_HAVE_RIVERMAX=1)
+endif()
+
+# ------------------------------------------------------------------
 # nmos-cpp node + cpprest HTTP adapter (C++17: websocketpp is not C++20 clean)
 # ------------------------------------------------------------------
 if(MXLGW_HAVE_NMOS)
@@ -191,6 +210,9 @@ if(MXLGW_HAVE_MXL)
     target_link_libraries(mxlgw-pipeline PUBLIC mxlgw-mxl)
     if(MXLGW_HAVE_MTL)
         target_link_libraries(mxlgw-pipeline PUBLIC mxlgw-mtl)
+    endif()
+    if(MXLGW_HAVE_RIVERMAX)
+        target_link_libraries(mxlgw-pipeline PUBLIC mxlgw-rivermax)
     endif()
     if(MXLGW_HAVE_NMOS)
         target_link_libraries(mxlgw-pipeline PUBLIC mxlgw-nmos)

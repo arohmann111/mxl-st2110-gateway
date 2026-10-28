@@ -301,6 +301,7 @@ namespace mxlgw::config
             case Backend::Dpdk: return "dpdk";
             case Backend::Kernel: return "kernel";
             case Backend::Mock: return "mock";
+            case Backend::Rivermax: return "rivermax";
         }
         return "dpdk";
     }
@@ -620,7 +621,8 @@ namespace mxlgw::config
         {
             auto const& n = j.at("nic");
             c.nic.backend =
-                enumFrom<Backend>(str(n, "backend", "dpdk"), {{"dpdk", Backend::Dpdk}, {"kernel", Backend::Kernel}, {"mock", Backend::Mock}}, "backend");
+                enumFrom<Backend>(str(n, "backend", "dpdk"), {{"dpdk", Backend::Dpdk}, {"kernel", Backend::Kernel}, {"mock", Backend::Mock}, {"rivermax", Backend::Rivermax}}, "backend");
+
             c.nic.lcores = str(n, "lcores");
             c.nic.lcoreCount = num<int>(n, "lcore_count", c.nic.lcoreCount);
             c.nic.schQuotaMbs = num<int>(n, "sch_quota_mbs", c.nic.schQuotaMbs);
@@ -1072,6 +1074,16 @@ namespace mxlgw::config
                 if (!portNames.insert(port.name).second)
                 {
                     add(errors, ptr + "/name", "duplicate port name '" + port.name + "'");
+                }
+                if (c.nic.backend == Backend::Rivermax) {
+                    if (port.ifname.empty())
+                    {
+                        add(errors, ptr + "/ifname", "is required for nic.backend = rivermax");
+                    }
+                    if (port.ip.empty())
+                    {
+                        add(errors, ptr + "/ip", "is required for nic.backend = rivermax");
+                    }
                 }
                 if (c.nic.backend == Backend::Dpdk)
                 {
